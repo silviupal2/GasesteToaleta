@@ -54,7 +54,7 @@ public class MapsActivity extends FragmentActivity
 			// Check if we were successful in obtaining the map.
 			if (mMap != null)
 			{
-				setUpMap();
+				setUpMapToCentralBucharest();
 			}
 		}
 	}
@@ -65,6 +65,11 @@ public class MapsActivity extends FragmentActivity
 	 * <p/>
 	 * This should only be called once and when we are sure that {@link #mMap} is not null.
 	 */
+	private void setUpMapToCentralBucharest()
+	{
+		mMap.addMarker(new MarkerOptions().position(new LatLng(44.2557d, 26.0614d)));
+	}
+
 	private void setUpMap()
 	{
 		mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
