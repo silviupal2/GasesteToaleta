@@ -1,17 +1,18 @@
-package teamepa.gasestetoaleta;
+package teamepa.gasestetoaleta.activities;
 
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import teamepa.gasestetoaleta.R;
+import teamepa.gasestetoaleta.activities.AbstractMainActivity;
 
-public class MapsActivity extends FragmentActivity
+public class MapsActivity extends AbstractMainActivity
 {
 
 	private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+	public LatLng BUCHAREST = new LatLng(44.2557d, 26.0614d);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -67,7 +68,7 @@ public class MapsActivity extends FragmentActivity
 	 */
 	private void setUpMapToCentralBucharest()
 	{
-		mMap.addMarker(new MarkerOptions().position(new LatLng(44.2557d, 26.0614d)));
+		mMap.addMarker(new MarkerOptions().position(BUCHAREST));
 	}
 
 	private void setUpMap()
