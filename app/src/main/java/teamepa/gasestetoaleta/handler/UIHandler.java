@@ -1,4 +1,4 @@
-package teamepa.gasestetoaleta;
+package teamepa.gasestetoaleta.handler;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -9,7 +9,8 @@ import android.os.Message;
  */
 public class UIHandler extends PauseHandler
 {
-	public static final int ADVANCE_TO_NEXT_ACTIVITY = 0;
+	public static final int ADVANCE_TO_NEXT_ACTIVITY              = 0;
+	public static final int GO_TO_NO_INTERNET_CONNECTION_ACTIVITY = 1;
 
 	public UIHandler()
 	{

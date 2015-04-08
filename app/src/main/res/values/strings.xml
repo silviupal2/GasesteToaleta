@@ -1,6 +1,19 @@
 <resources>
-    <string name="app_name">GasesteToaleta</string>
-    <string name="title_splash_screen">Welcome!</string>
-    <string name="title_login">Login</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="app_name">Gaseste Toaleta</string>
+    <string name="title_splash_screen">Gaseste Toaleta!</string>
+    <string name="title_login">Gaseste Toaleta</string>
+    <string name="title_activity_maps">Gaseste Toaleta</string>
+    <string name="text_for_no_internet_page_title">NO_INTERNET_TITLE</string>
+    <string name="text_for_no_internet_page_subtitle">NO_INTERNET_SUBTITLE</string>
+    <string name="try_again_text">Incearca din nou</string>
+
+    <string name="action_about">About</string>
+    <string name="action_help">Help</string>
+    <string name="titlu_toaleta">Titlu</string>
+    <string name="descriere_toaleta">Descriere</string>
+    <string name="titlu_dialog_adauga">Adauga Toaleta</string>
+    <string name="titlu_dialog_afisare">Detalii toaleta</string>
+
+
+
 </resources>

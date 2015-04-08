@@ -1,4 +1,4 @@
-package teamepa.gasestetoaleta;
+package teamepa.gasestetoaleta.handler;
 
 import android.os.Handler;
 import android.os.Looper;

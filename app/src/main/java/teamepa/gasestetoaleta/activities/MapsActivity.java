@@ -1,24 +1,61 @@
 package teamepa.gasestetoaleta.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import teamepa.gasestetoaleta.R;
-import teamepa.gasestetoaleta.activities.AbstractMainActivity;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends AbstractMainActivity
 {
-
 	private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-	public LatLng BUCHAREST = new LatLng(44.2557d, 26.0614d);
+	public LatLng BUCHAREST = new LatLng(44.4356442d, 26.1024104d);
+	protected ImageButton imageButton;
+	protected boolean isFirstLaunch = true;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_maps);
+		imageButton = (ImageButton) findViewById(R.id.add_bathroom_button);
+		imageButton.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				if (!imageButton.isActivated())
+				{
+					imageButton.setActivated(true);
+					imageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_delete));
+					Toast.makeText(getApplicationContext(), "Apasa pe harta unde vrei sa adaugi toaleta.",
+							Toast.LENGTH_SHORT).show();
+				}
+				else
+				{
+					imageButton.setActivated(false);
+					imageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_input_add));
+				}
+			}
+		});
 		setUpMapIfNeeded();
 	}
 
@@ -29,21 +66,6 @@ public class MapsActivity extends AbstractMainActivity
 		setUpMapIfNeeded();
 	}
 
-	/**
-	 * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-	 * installed) and the map has not already been instantiated.. This will ensure that we only ever
-	 * call {@link #setUpMap()} once when {@link #mMap} is not null.
-	 * <p/>
-	 * If it isn't installed {@link SupportMapFragment} (and
-	 * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-	 * install/update the Google Play services APK on their device.
-	 * <p/>
-	 * A user can return to this FragmentActivity after following the prompt and correctly
-	 * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-	 * have been completely destroyed during this process (it is likely that it would only be
-	 * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
-	 * method in {@link #onResume()} to guarantee that it will be called.
-	 */
 	private void setUpMapIfNeeded()
 	{
 		// Do a null check to confirm that we have not already instantiated the map.
@@ -55,20 +77,163 @@ public class MapsActivity extends AbstractMainActivity
 			// Check if we were successful in obtaining the map.
 			if (mMap != null)
 			{
-				setUpMapToCentralBucharest();
+				addMarkerOnMap(BUCHAREST, 10);
+				addAllMarkers();
+				mMap.setMyLocationEnabled(true);
+				mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()
+				{
+					@Override
+					public void onMapClick(LatLng latLng)
+					{
+						//TO DO WHEN CLICK ON MAP, ADD BATHROOM
+						if (imageButton.isActivated())
+						{
+							addMarkerOnMap(latLng, mMap.getCameraPosition().zoom);
+						}
+						else
+						{
+							Toast.makeText(getApplicationContext(), "Apasa + pentru a adauga toaleta.",
+									Toast.LENGTH_SHORT).show();
+
+						}
+					}
+				});
 			}
 		}
 	}
 
-	/**
-	 * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-	 * just add a marker near Africa.
-	 * <p/>
-	 * This should only be called once and when we are sure that {@link #mMap} is not null.
-	 */
-	private void setUpMapToCentralBucharest()
+	private void addMarkerOnMap(LatLng latLng, float zoom)
 	{
-		mMap.addMarker(new MarkerOptions().position(BUCHAREST));
+		MarkerOptions marker = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R
+				.drawable.toilet));
+		mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+		{
+			@Override
+			public boolean onMarkerClick(Marker marker)
+			{
+				showMarkerDialog(marker);
+				return false;
+			}
+		});
+		if (isFirstLaunch)
+		{
+			marker.title("Bucharest").snippet("Bucharest is amazing!");
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+			mMap.animateCamera(CameraUpdateFactory.zoomTo(zoom + 5), 2000, null);
+			mMap.addMarker(marker);
+			isFirstLaunch = false;
+		}
+		else
+		{
+			showAddToiletDialog(latLng, zoom);
+		}
+
+	}
+
+	protected void showAddToiletDialog(final LatLng latLng, final float zoom)
+	{
+		View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.adauga_toaleta_dialog, null);
+		View viewTitlu = LayoutInflater.from(getApplicationContext()).inflate(R.layout.title_dialog, null);
+		TextView titluDialog = (TextView) viewTitlu.findViewById(R.id.titlu_dialog_tv);
+		titluDialog.setText(getAddress(latLng));
+		final EditText mTitlu = (EditText) view.findViewById(R.id.et_titlu);
+		final EditText mDescriere = (EditText) view.findViewById(R.id.et_descriere);
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		alert.setCustomTitle(viewTitlu)
+			 .setView(view)
+			 .setPositiveButton(("OK"), new DialogInterface.OnClickListener()
+			 {
+				 @Override
+				 public void onClick(DialogInterface dialog, int which)
+				 {
+					 //addDataToDatabase(mTitlu.getText().toString(),mDescriere.getText().toString(), latLng, );
+					 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom), 2000, null);
+					 mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R
+							 .drawable.toilet)).title(mTitlu.getText().toString()).snippet(mDescriere.getText()
+																									 .toString()));
+					 //refreshMarkers();
+					 imageButton.setActivated(false);
+					 imageButton.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_input_add));
+				 }
+			 })
+			 .setNegativeButton("Anuleaza", new DialogInterface.OnClickListener()
+			 {
+				 @Override
+				 public void onClick(DialogInterface dialog, int which)
+				 {
+
+				 }
+			 }).show();
+
+
+	}
+
+	protected void showMarkerDialog(Marker marker)
+	{
+		View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.afiseaza_toaleta_dialog, null);
+		View viewTitlu = LayoutInflater.from(getApplicationContext()).inflate(R.layout.title_dialog, null);
+		TextView titluDialog = (TextView) viewTitlu.findViewById(R.id.titlu_dialog_tv);
+		titluDialog.setText(getAddress(marker.getPosition()));
+		TextView titlu = (TextView) view.findViewById(R.id.tv_titlu_toaleta);
+		TextView descriere = (TextView) view.findViewById(R.id.tv_descriere_toaleta);
+		titlu.setText(marker.getTitle());
+		descriere.setText(marker.getSnippet());
+		//getInfo from Database with the user that added this marker
+		/*
+		if marker.getPosition() equals database.getString(latlng)
+		titlul si descrierea preiau acele date
+		 */
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		alert.setCustomTitle(viewTitlu)
+			 .setView(view)
+			 .setPositiveButton(("Editeaza"), new DialogInterface.OnClickListener()
+			 {
+				 @Override
+				 public void onClick(DialogInterface dialog, int which)
+				 {
+
+				 }
+			 })
+			 .setNegativeButton("Inapoi", new DialogInterface.OnClickListener()
+			 {
+				 @Override
+				 public void onClick(DialogInterface dialog, int which)
+				 {
+
+				 }
+			 }).show();
+
+
+	}
+
+	protected String getAddress(LatLng latLng)
+	{
+		Geocoder geocoder = new Geocoder(this, Locale.ENGLISH);
+		try
+		{
+			List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+
+			if (addresses != null)
+			{
+				Address returnedAddress = addresses.get(0);
+				StringBuilder strReturnedAddress = new StringBuilder("Address:\n");
+				for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++)
+				{
+					strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+				}
+				return strReturnedAddress.toString();
+			}
+			else
+			{
+				return "No Address returned!";
+			}
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "Canont get Address!";
+		}
 	}
 
 	private void setUpMap()

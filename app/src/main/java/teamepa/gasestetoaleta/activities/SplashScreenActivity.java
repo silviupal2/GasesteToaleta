@@ -3,13 +3,8 @@ package teamepa.gasestetoaleta.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import teamepa.gasestetoaleta.R;
-import teamepa.gasestetoaleta.UIHandler;
-import teamepa.gasestetoaleta.activities.AbstractMainActivity;
-import teamepa.gasestetoaleta.activities.LoginActivity;
+import teamepa.gasestetoaleta.handler.UIHandler;
 
-/**
- * Created by SilviuPal on 17-Mar-15.
- */
 public class SplashScreenActivity extends AbstractMainActivity
 {
 	@Override
