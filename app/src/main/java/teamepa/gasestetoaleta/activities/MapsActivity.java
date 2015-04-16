@@ -1,10 +1,12 @@
 package teamepa.gasestetoaleta.activities;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -18,6 +20,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import teamepa.gasestetoaleta.Constants;
+import teamepa.gasestetoaleta.EndpointsAsyncTask;
 import teamepa.gasestetoaleta.R;
 
 import java.io.IOException;
@@ -27,7 +31,7 @@ import java.util.Locale;
 public class MapsActivity extends AbstractMainActivity
 {
 	private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-	public LatLng BUCHAREST = new LatLng(44.4356442d, 26.1024104d);
+
 	protected ImageButton imageButton;
 	protected boolean isFirstLaunch = true;
 
@@ -36,6 +40,7 @@ public class MapsActivity extends AbstractMainActivity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_maps);
+
 		imageButton = (ImageButton) findViewById(R.id.add_bathroom_button);
 		imageButton.setOnClickListener(new View.OnClickListener()
 		{
@@ -57,6 +62,7 @@ public class MapsActivity extends AbstractMainActivity
 			}
 		});
 		setUpMapIfNeeded();
+		new EndpointsAsyncTask().execute(new Pair<Context, String>(this, getCurrentUserEmail()));
 	}
 
 	@Override
@@ -77,8 +83,8 @@ public class MapsActivity extends AbstractMainActivity
 			// Check if we were successful in obtaining the map.
 			if (mMap != null)
 			{
-				addMarkerOnMap(BUCHAREST, 10);
-				addAllMarkers();
+				addMarkerOnMap(Constants.BUCHAREST, 10);
+				addAllMarkers(mMap);
 				mMap.setMyLocationEnabled(true);
 				mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()
 				{
@@ -117,7 +123,7 @@ public class MapsActivity extends AbstractMainActivity
 		});
 		if (isFirstLaunch)
 		{
-			marker.title("Bucharest").snippet("Bucharest is amazing!");
+			marker.title(Constants.Title.BUCHAREST).snippet(Constants.Snippet.BUCHAREST);
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
 			mMap.animateCamera(CameraUpdateFactory.zoomTo(zoom + 5), 2000, null);
 			mMap.addMarker(marker);
@@ -216,7 +222,7 @@ public class MapsActivity extends AbstractMainActivity
 			if (addresses != null)
 			{
 				Address returnedAddress = addresses.get(0);
-				StringBuilder strReturnedAddress = new StringBuilder("Address:\n");
+				StringBuilder strReturnedAddress = new StringBuilder("Adresa:\n");
 				for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++)
 				{
 					strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
