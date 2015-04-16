@@ -31,4 +31,19 @@ public class MyEndpoint
 		return response;
 	}
 
+	@ApiMethod(name = "afiseazaToaleta")
+	public ToaletaModel afiseazaToaleta(@Named("id") int id, @Named("coordx") String coordx,
+										@Named("coordy") String coordy,
+										@Named("descriere") String descriere, @Named("author_email") String author_email)
+	{
+		ToaletaModel response = new ToaletaModel();
+		response.setId(id);
+		response.setCoordx(coordx);
+		response.setCoordy(coordy);
+		response.setDescriere(descriere);
+		response.setAuthor_email(author_email);
+
+		return response;
+	}
+
 }
