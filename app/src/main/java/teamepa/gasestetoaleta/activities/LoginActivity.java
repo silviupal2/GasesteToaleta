@@ -13,7 +13,7 @@ import teamepa.gasestetoaleta.handler.UIHandler;
 
 public class LoginActivity extends AbstractMainActivity
 {
-	static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
+	public static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -47,12 +47,19 @@ public class LoginActivity extends AbstractMainActivity
 		}
 	}
 
-	private void pickUserAccount()
+	public static String[] googleAccount;
+
+	public void pickUserAccount()
 	{
-		String[] accountTypes = new String[]{"com.google"};
-		Intent intent = AccountPicker.newChooseAccountIntent(null, null, new String[]{"com.google"},
+		googleAccount = new String[]{"com.google"};
+		Intent intent = AccountPicker.newChooseAccountIntent(null, null, googleAccount,
 				false, null, null, null, null);
 		startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
+	}
+
+	public static String[] getGoogleAccount()
+	{
+		return googleAccount;
 	}
 
 	protected void onActivityResult(final int requestCode, final int resultCode,
@@ -61,6 +68,7 @@ public class LoginActivity extends AbstractMainActivity
 		if (requestCode == REQUEST_CODE_PICK_ACCOUNT && resultCode == RESULT_OK)
 		{
 			String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+			setCurrentAccount(accountName);
 			System.out.println(accountName + " este contul meu!");
 			goToNextActivity();
 		}
